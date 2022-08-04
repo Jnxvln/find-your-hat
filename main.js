@@ -9,19 +9,17 @@ const pathCharacter = '*';
 const arrEquals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 
 class Field {
-    constructor () {
-      this.field = []
-      this.playerLocation = undefined
-      this.hatLocation = undefined
-      this.holeLocations = []
-
-      // Determine player, hat, and hole locations
-    //   this.init()
+    constructor (field) {
+      this._field = field || []             // field (array)
+      this._playerLocation = undefined      // location of player
+      this._hatLocation = undefined         // location of hat
+      this._holeLocations = []              // list of holes
+      this._maxHolesDivisor = 6             // affects number of holes in field
     }
 
     print () {
 
-        if (!Array.isArray(this.field)) {
+        if (!this.field || this.field.length <= 0) {
             throw new Error('ERROR field must not be empty')
         }
         // Clear the console and print the field
@@ -37,8 +35,6 @@ class Field {
 
         if (this.field && this.field.length > 0) {
 
-            // console.log(this.field)
-            
             // Determine position of player
             let playerCell = this.field.find(f => f.includes(pathCharacter))    // find the row (array) containing pathCharacter (*)
             let playerRow = this.field.indexOf(playerCell)                      // index of this array
@@ -145,16 +141,14 @@ class Field {
                 let field = []
                 let holePositions = []
     
-                console.log(`Generating field ${rows}x${cols} (${totalCells} cells)`)
-    
                 // Generate field (array) and populate with ░ field character
                 for (let i=0; i<totalCells; i++) {
                     field.push(fieldCharacter)
                 }
     
                 // Generate random positions of holes (random numbers between 0 and `totalCells`)
-                // Note: the divisor determines max number of holes (keep fairly high or field may be impossible to navigate)
-                for (let i=0; i<totalCells/6; i++) {
+                // Note: the maxHolesDivisor affects max number of holes (the lower the number, the more holes appear)
+                for (let i=0; i<totalCells/this.maxHolesDivisor; i++) {
                     holePositions.push(Math.floor(Math.random() * totalCells))
                 }
                 const holes = [...new Set(holePositions)]   // make sure numbers are unique and not repeating twice
@@ -186,12 +180,70 @@ class Field {
 
         return fieldPromise
     }
+
+    // GETTERS
+
+    get field () {
+        return this._field
+    }
+
+    get playerLocation () {
+        return this._playerLocation
+    }
+
+    get hatLocation () {
+        return this._hatLocation
+    }
+
+    get holeLocations () {
+        return this._holeLocations
+    }
+
+    get maxHolesDivisor () {
+        return this._maxHolesDivisor
+    }
+
+    // SETTERS
+
+    set field (field) {
+        this._field = field
+    }
+
+    set playerLocation (location) {
+        this._playerLocation = location
+    }
+
+    set hatLocation (location) {
+        this._hatLocation = location
+    }
+
+    set holeLocations (locations) {
+        this._holeLocations = locations
+    }
+
+    set maxHolesDivisor (scalar) {
+        this._maxHolesDivisor = scalar
+    }
 }
 
-// EXECUTE ===============================================================================================
+// EXECUTE (CHOOSE ONE) ==================================
 
-const myField = new Field();
-myField.generateField(4, 5).then(() => {
+// const testField = [
+//     ['*', '░', 'O'],
+//     ['░', 'O', '░'],
+//     ['░', '^', '░'],
+//   ]
+
+// const myField = new Field(testField);
+// myField.init()
+// myField.print()
+// myField.askDirection()
+
+// OR ===================================================
+
+const myField = new Field()
+
+myField.generateField(10, 20).then(() => {
     myField.init()
     myField.askDirection()
 })
