@@ -9,48 +9,60 @@ const pathCharacter = '*';
 const arrEquals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 
 class Field {
-    constructor (field) {
-      this.field = field || []
+    constructor () {
+      this.field = []
       this.playerLocation = undefined
       this.hatLocation = undefined
       this.holeLocations = []
 
       // Determine player, hat, and hole locations
-      this.init()
+    //   this.init()
     }
 
     print () {
+
+        if (!Array.isArray(this.field)) {
+            throw new Error('ERROR field must not be empty')
+        }
         // Clear the console and print the field
         console.clear()
 
         // Print each field on its own row
         for (let i=0; i<this.field.length; i++) {
-            console.log(this.field[i].join(' '))
+            console.log(this.field[i].join(''))
         }
     }
 
     init () {
-        // Determine position of player
-        let playerCell = this.field.find(f => f.includes(pathCharacter))    // find the row (array) containing pathCharacter (*)
-        let playerRow = this.field.indexOf(playerCell)                      // index of this array
-        let playerCol = this.field[playerRow].indexOf(pathCharacter)        // find the column (array) containing pathCharacter (*)
 
-        this.playerLocation = [playerRow, playerCol]                        // set player location to the [row, col] found
+        if (this.field && this.field.length > 0) {
 
-        // Determine position of hat
-        let hatCell = this.field.find(f => f.includes(hat))                 // find the row (array) containing hat (^)
-        let hatRow = this.field.indexOf(hatCell)                            // index of this array
-        let hatCol = this.field[hatRow].indexOf(hat)
+            // console.log(this.field)
+            
+            // Determine position of player
+            let playerCell = this.field.find(f => f.includes(pathCharacter))    // find the row (array) containing pathCharacter (*)
+            let playerRow = this.field.indexOf(playerCell)                      // index of this array
+            let playerCol = this.field[playerRow].indexOf(pathCharacter)        // find the column (array) containing pathCharacter (*)
 
-        this.hatLocation = [hatRow, hatCol]                                 // set hat location to the [row, col] found
+            this.playerLocation = [playerRow, playerCol]                        // set player location to the [row, col] found
 
-        // Determine positions of holes
-        for (let i=0; i<this.field.length; i++) {
-            for (let j=0; j<this.field[i].length; j++) {
-                if (this.field[i][j] === hole) {
-                    this.holeLocations.push([i, j])
+            // Determine position of hat
+            let hatCell = this.field.find(f => f.includes(hat))                 // find the row (array) containing hat (^)
+            let hatRow = this.field.indexOf(hatCell)                            // index of this array
+            let hatCol = this.field[hatRow].indexOf(hat)
+
+            this.hatLocation = [hatRow, hatCol]                                 // set hat location to the [row, col] found
+
+            // Determine positions of holes
+            for (let i=0; i<this.field.length; i++) {
+                for (let j=0; j<this.field[i].length; j++) {
+                    if (this.field[i][j] === hole) {
+                        this.holeLocations.push([i, j])
+                    }
                 }
             }
+        } else {
+            throw new Error('ERROR: Field cannot be empty')
         }
     }
 
@@ -119,14 +131,67 @@ class Field {
             }
         }
     }
+
+    generateField (row, col) {
+
+        const fieldPromise = new Promise((resolve, reject) => {
+            if ((!row || !col) || (parseInt(row) <= 0 || parseInt(col) <= 0)) {
+                reject(new Error('ERROR generateField(row, col): `row` and `col` must be a number greater than 0'))
+            } else {
+                // Create an array based on number of rows and cols
+                const rows = parseInt(row)
+                const cols = parseInt(col)
+                const totalCells = rows * cols
+                let field = []
+                let holePositions = []
+    
+                console.log(`Generating field ${rows}x${cols} (${totalCells} cells)`)
+    
+                // Generate field (array) and populate with ░ field character
+                for (let i=0; i<totalCells; i++) {
+                    field.push(fieldCharacter)
+                }
+    
+                // Generate random positions of holes (random numbers between 0 and `totalCells`)
+                // Note: the divisor determines max number of holes (keep fairly high or field may be impossible to navigate)
+                for (let i=0; i<totalCells/6; i++) {
+                    holePositions.push(Math.floor(Math.random() * totalCells))
+                }
+                const holes = [...new Set(holePositions)]   // make sure numbers are unique and not repeating twice
+    
+                // Of the hole positions generated, fill each with the hole character 'O'
+                for (let i=0; i<holePositions.length; i++) {
+                    field[holePositions[i]] = hole
+                }
+    
+                // Generate the hat
+                const randNum = Math.floor(Math.random() * totalCells)
+                field[randNum] = '^'
+                let startPosition = null
+                while (!startPosition || startPosition === randNum) {
+                    startPosition = Math.floor(Math.random() * totalCells)
+                }
+                field[startPosition] = '*'
+
+                // Convert to multidimensional array
+                const newArr = [];
+                while(field.length) newArr.push(field.splice(0, col));
+                    
+                // console.log(newArr);
+    
+                this.field = newArr
+                resolve(newArr)
+            }
+        })
+
+        return fieldPromise
+    }
 }
 
 // EXECUTE ===============================================================================================
 
-const myField = new Field([
-    ['░', '░', 'O'],
-    ['*', 'O', '░'],
-    ['░', '^', '░'],
-]);
-
-myField.askDirection()
+const myField = new Field();
+myField.generateField(4, 5).then(() => {
+    myField.init()
+    myField.askDirection()
+})
