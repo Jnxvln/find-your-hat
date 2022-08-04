@@ -228,6 +228,15 @@ class Field {
 
 // EXECUTE (CHOOSE ONE) ==================================
 
+const myField = new Field()
+
+myField.generateField(10, 20).then(() => {
+    myField.init()
+    myField.askDirection()
+})
+
+// OR ===================================================
+
 // const testField = [
 //     ['*', '░', 'O'],
 //     ['░', 'O', '░'],
@@ -238,12 +247,3 @@ class Field {
 // myField.init()
 // myField.print()
 // myField.askDirection()
-
-// OR ===================================================
-
-const myField = new Field()
-
-myField.generateField(10, 20).then(() => {
-    myField.init()
-    myField.askDirection()
-})

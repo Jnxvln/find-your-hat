@@ -14,11 +14,29 @@ node main.js
 Note: At the bottom of `main.js` you will find this code:
 
 ```
-const myField = new Field();
-myField.generateField(4, 5).then(() => {
+// EXECUTE (CHOOSE ONE) ==================================
+
+// const testField = [
+//     ['*', '░', 'O'],
+//     ['░', 'O', '░'],
+//     ['░', '^', '░'],
+//   ]
+
+// const myField = new Field(testField);
+// myField.init()
+// myField.print()
+// myField.askDirection()
+
+// OR ===================================================
+
+const myField = new Field()
+
+myField.generateField(10, 20).then(() => {
     myField.init()
     myField.askDirection()
 })
 ```
 
 Feel free to change (4, 5) to any other size. This will change the number of rows and columns, respectively.
+
+You may need 
