@@ -229,6 +229,7 @@ class Field {
 // EXECUTE (CHOOSE ONE) ==================================
 
 const myField = new Field()
+myField.maxHolesDivisor = 6
 
 myField.generateField(10, 20).then(() => {
     myField.init()
